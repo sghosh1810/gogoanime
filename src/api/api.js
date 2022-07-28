@@ -361,13 +361,17 @@ const animeContentHandler = async id => {
   const $ = cheerio.load(body);
   const promises = [];
   let check_zero_episode = false;
-  const check_zero_episode_axios = await axios.get(
-    `${url.BASE_URL}${id.split('/')[2]}`
-  );
-  const check_zero_episode_body = await check_zero_episode_axios.data;
-  const check_zero_episode_cheerio = cheerio.load(check_zero_episode_body);
-  if (check_zero_episode_cheerio('.entry-title').text() != '404') {
-    check_zero_episode = true;
+  try {
+    const check_zero_episode_axios = await axios.get(
+      `${url.BASE_URL}${id.split('/')[2]}`
+    );
+    const check_zero_episode_body = await check_zero_episode_axios.data;
+    const check_zero_episode_cheerio = cheerio.load(check_zero_episode_body);
+    if (check_zero_episode_cheerio('.entry-title').text() != '404') {
+      check_zero_episode = true;
+    }
+  } catch {
+    // do nothing
   }
 
   $('div#wrapper_bg').each((index, element) => {
