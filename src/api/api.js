@@ -225,6 +225,26 @@ const popular = async page => {
   return await Promise.all(promises);
 };
 
+const getAnimeContentById = async gogoId => {
+  const id = `/category/${gogoId}`;
+  const promises = [];
+  promises.push(
+    animeContentHandler(id).then(extra => ({
+      title: 'Test title',
+      img: extra[0] ? extra[0].img : null,
+      synopsis: extra[0] ? extra[0].synopsis : null,
+      genres: extra[0] ? extra[0].genres : null,
+      released: extra[0] ? extra[0].released : null,
+      status: extra[0] ? extra[0].status : null,
+      otherName: extra[0] ? extra[0].otherName : null,
+      totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
+      slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
+      title: extra[0] ? extra[0].title : null
+    }))
+  );
+  return await Promise.all(promises);
+};
+
 const recentlyAddedSeries = async () => {
   const res = await axios.get(`${url.BASE_URL}`);
   const body = await res.data;
@@ -440,7 +460,7 @@ const animeContentHandler = async id => {
     if (check_zero_episode) {
       episodes.unshift({id: id.split('/')[2]});
     }
-
+    const title = $element.find('div.anime_info_body_bg h1').text();
     promises.push({
       img: img,
       synopsis: synopsis,
@@ -450,7 +470,8 @@ const animeContentHandler = async id => {
       otherName: otherName,
       totalEpisodes: check_zero_episode ? totalEpisodes + 1 : totalEpisodes,
       episodes: episodes,
-      slug: id
+      slug: id,
+      title: title
     });
   });
   return await Promise.all(promises);
@@ -512,5 +533,6 @@ module.exports = {
   popular,
   search,
   genres,
-  decodeVidstreamingIframeURL
+  decodeVidstreamingIframeURL,
+  getAnimeContentById
 };
