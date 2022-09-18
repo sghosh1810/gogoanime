@@ -239,7 +239,8 @@ const getAnimeContentById = async gogoId => {
       otherName: extra[0] ? extra[0].otherName : null,
       totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
       slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
-      title: extra[0] ? extra[0].title : null
+      title: extra[0] ? extra[0].title : null,
+      episodeSlug: extra[0] ? extra[0].episodeSlug : null
     }))
   );
   return await Promise.all(promises);
@@ -402,6 +403,12 @@ const animeContentHandler = async id => {
       .eq(1)
       .text();
     const genres = [];
+    const episodeSlug = $element
+      .find('#episode_related li:first-child a')
+      .attr('href')
+      .split('-episode-')[0]
+      .split('/')[1];
+
     $element
       .find('div.anime_info_body_bg p.type')
       .eq(2)
@@ -451,7 +458,7 @@ const animeContentHandler = async id => {
     }
 
     let episodes = Array.from({length: totalEpisodes}, (v, k) => {
-      const animeId = `${id}-episode-${k + 1}`.slice(10);
+      const animeId = `${episodeSlug}-episode-${k + 1}`.slice(10);
       return {
         id: animeId
       };
@@ -471,7 +478,8 @@ const animeContentHandler = async id => {
       totalEpisodes: check_zero_episode ? totalEpisodes + 1 : totalEpisodes,
       episodes: episodes,
       slug: id,
-      title: title
+      title: title,
+      episodeSlug: episodeSlug
     });
   });
   return await Promise.all(promises);
