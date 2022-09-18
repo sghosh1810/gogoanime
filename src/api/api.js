@@ -382,6 +382,7 @@ const animeContentHandler = async id => {
   const $ = cheerio.load(body);
   const promises = [];
   let check_zero_episode = false;
+  const episodeSlug = await getEpisodeSlugBySlugId(id, $);
   try {
     const check_zero_episode_axios = await axios.get(
       `${url.BASE_URL}${id.split('/')[2]}`
@@ -403,11 +404,6 @@ const animeContentHandler = async id => {
       .eq(1)
       .text();
     const genres = [];
-    const episodeSlug = $element
-      .find('#episode_related li:first-child a')
-      .attr('href')
-      .split('-episode-')[0]
-      .split('/')[1];
 
     $element
       .find('div.anime_info_body_bg p.type')
@@ -528,6 +524,28 @@ const getSlugFromId = id => {
     id = id.substring(1);
   }
   return id.replace('category/', '');
+};
+const getEpisodeSlugBySlugId = async (slug, $) => {
+  var ep_start = $('#episode_page a.active').attr('ep_start');
+  var ep_end = $('#episode_page a.active').attr('ep_end');
+  var id = $('input#movie_id').val();
+  var default_ep = $('input#default_ep').val();
+  var alias = $('input#alias_anime').val();
+
+  const res = await axios.get(
+    `${
+      url.GOGO_AJAX_URL
+    }ajax/load-list-episode?ep_start=${ep_start}&ep_end=${Math.min(
+      parseInt(ep_end),
+      1
+    )}&id=${id}&default_ep=${default_ep}&alias=${alias}`
+  );
+  const body = await res.data;
+  const episodeListBody = cheerio.load(body);
+  return episodeListBody('#episode_related li:first-child a')
+    .attr('href')
+    .split('-episode-')[0]
+    .split('/')[1];
 };
 
 module.exports = {
