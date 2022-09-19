@@ -535,9 +535,8 @@ const getEpisodeSlugBySlugId = async (slug, $) => {
   const res = await axios.get(
     `${
       url.GOGO_AJAX_URL
-    }ajax/load-list-episode?ep_start=${ep_start}&ep_end=${Math.min(
-      parseInt(ep_end),
-      1
+    }ajax/load-list-episode?ep_start=${ep_start}&ep_end=${parseInt(
+      ep_end
     )}&id=${id}&default_ep=${default_ep}&alias=${alias}`
   );
   const body = await res.data;
