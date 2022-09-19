@@ -544,6 +544,7 @@ const getEpisodeSlugBySlugId = async (slug, $) => {
   const episodeListBody = cheerio.load(body);
   return episodeListBody('#episode_related li:first-child a')
     .attr('href')
+    .trim()
     .split('-episode-')[0]
     .split('/')[1];
 };
