@@ -537,11 +537,13 @@ const getEpisodeSlugBySlugId = async (slug, $) => {
   );
   const body = await res.data;
   const episodeListBody = cheerio.load(body);
-  return episodeListBody('#episode_related li:first-child a')
-    .attr('href')
-    .trim()
-    .split('-episode-')[0]
-    .split('/')[1];
+  return (
+    episodeListBody('#episode_related li:first-child a')
+      ?.attr('href')
+      ?.trim()
+      ?.split('-episode-')[0]
+      ?.split('/')[1] ?? slug
+  );
 };
 
 module.exports = {
