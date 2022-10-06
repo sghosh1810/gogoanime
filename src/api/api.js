@@ -226,7 +226,7 @@ const popular = async page => {
 };
 
 const getAnimeContentById = async gogoId => {
-  const id = `/category/${gogoId}`;
+  const id = `/${gogoId}`;
   const promises = [];
   promises.push(
     animeContentHandler(id).then(extra => ({
