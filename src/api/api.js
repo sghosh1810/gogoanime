@@ -218,7 +218,9 @@ const popular = async page => {
         otherName: extra[0] ? extra[0].otherName : null,
         totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
         episodes: extra[0] ? extra[0].episodes : null,
-        slug: extra[0] ? getSlugFromId(extra[0].slug) : null
+        slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
+        episodes: extra[0] ? extra[0].episodes : [],
+        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
       }))
     );
   });
@@ -240,7 +242,9 @@ const getAnimeContentById = async gogoId => {
       totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
       slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
       title: extra[0] ? extra[0].title : null,
-      episodeSlug: extra[0] ? extra[0].episodeSlug : null
+      episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+      episodes: extra[0] ? extra[0].episodes : [],
+      hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
     }))
   );
   return await Promise.all(promises);
@@ -268,7 +272,10 @@ const recentlyAddedSeries = async () => {
           otherName: extra[0] ? extra[0].otherName : null,
           totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
           episodes: extra[0] ? extra[0].episodes : null,
-          slug: extra[0] ? getSlugFromId(extra[0].slug) : null
+          slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
+          episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+          episodes: extra[0] ? extra[0].episodes : [],
+          hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
         }))
       );
     }
@@ -382,7 +389,7 @@ const animeContentHandler = async id => {
   const $ = cheerio.load(body);
   const promises = [];
   let check_zero_episode = false;
-  const episodeSlug = await getEpisodeSlugBySlugId(id, $);
+  const {episodeSlug, episodeList} = await getEpisodeSlugBySlugId(id, $);
   try {
     const check_zero_episode_axios = await axios.get(
       `${url.BASE_URL}${id.split('/')[2]}`
@@ -395,7 +402,6 @@ const animeContentHandler = async id => {
   } catch {
     // do nothing
   }
-
   $('div#wrapper_bg').each((index, element) => {
     const $element = $(element);
     const img = $element.find('div.anime_info_body_bg img').attr('src');
@@ -452,17 +458,6 @@ const animeContentHandler = async id => {
         10
       );
     }
-
-    let episodes = Array.from({length: totalEpisodes}, (v, k) => {
-      const animeId = `${episodeSlug}-episode-${k + 1}`.slice(10);
-      return {
-        id: animeId
-      };
-    });
-
-    if (check_zero_episode) {
-      episodes.unshift({id: id.split('/')[2]});
-    }
     const title = $element.find('div.anime_info_body_bg h1').text();
     promises.push({
       img: img,
@@ -471,11 +466,12 @@ const animeContentHandler = async id => {
       released: released,
       status: status,
       otherName: otherName,
-      totalEpisodes: check_zero_episode ? totalEpisodes + 1 : totalEpisodes,
-      episodes: episodes,
+      totalEpisodes: totalEpisodes,
+      episodes: episodeList,
       slug: id,
       title: title,
-      episodeSlug: episodeSlug
+      episodeSlug: episodeSlug,
+      hasZeroEpisode: check_zero_episode
     });
   });
   return await Promise.all(promises);
@@ -526,7 +522,7 @@ const getSlugFromId = id => {
   return id.replace('category/', '');
 };
 const getEpisodeSlugBySlugId = async (slug, $) => {
-  var ep_start = $('#episode_page a.active').attr('ep_start');
+  var ep_start = 0;
   var ep_end = $('#episode_page a.active').attr('ep_end');
   var id = $('input#movie_id').val();
   var default_ep = $('input#default_ep').val();
@@ -536,14 +532,23 @@ const getEpisodeSlugBySlugId = async (slug, $) => {
     `${url.GOGO_AJAX_URL}ajax/load-list-episode?ep_start=${ep_start}&ep_end=${ep_end}&id=${id}&default_ep=${default_ep}&alias=${alias}`
   );
   const body = await res.data;
-  const episodeListBody = cheerio.load(body);
-  return (
-    episodeListBody('#episode_related li:first-child a')
-      ?.attr('href')
-      ?.trim()
-      ?.split('-episode-')[0]
-      ?.split('/')[1] ?? slug
-  );
+  const $$ = cheerio.load(body);
+  return {
+    episodeSlug:
+      $$('#episode_related li:first-child a')
+        ?.attr('href')
+        ?.trim()
+        ?.split('-episode-')[0]
+        ?.split('/')[1] ?? slug,
+    episodeList: $$('#episode_related li a')
+      .map(function() {
+        return $$(this)
+          ?.attr('href')
+          ?.trim()
+          ?.split('/')[1];
+      })
+      .get()
+  };
 };
 
 module.exports = {
