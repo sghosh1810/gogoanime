@@ -546,12 +546,21 @@ const getEpisodeSlugBySlugId = async (slug, $) => {
         ?.trim()
         ?.split('-episode-')[0]
         ?.split('/')[1] ?? slug,
-    episodeList: $$('#episode_related li a')
+    episodeList: $$('#episode_related li')
       .map(function() {
-        return $$(this)
+        var episodeNumber = $$(this)
+          .find('.name')
+          .text()
+          .split(' ')[1]
+          .trim();
+        var episodeId = $$(this)
+          .find('a')
           ?.attr('href')
           ?.trim()
           ?.split('/')[1];
+        var episodeObj = {};
+        episodeObj[episodeNumber] = episodeId;
+        return episodeObj;
       })
       .get()
   };
