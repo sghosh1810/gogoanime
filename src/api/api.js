@@ -558,11 +558,12 @@ const getEpisodeSlugBySlugId = async (slug, $) => {
           ?.attr('href')
           ?.trim()
           ?.split('/')[1];
-        var episodeObj = {};
-        episodeObj[episodeNumber] = episodeId;
-        return episodeObj;
+        return {[episodeNumber]: episodeId};
       })
       .get()
+      .reduce(function(acc, obj) {
+        return Object.assign(acc, obj);
+      }, {})
   };
 };
 
