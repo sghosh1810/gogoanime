@@ -314,7 +314,10 @@ const recentReleaseEpisodes = async page => {
           status: extra[0].status || null,
           otherName: extra[0].otherName || null,
           servers: extra[0].servers || null,
-          slug: getSlugFromId(extra[0].slug) || null
+          slug: getSlugFromId(extra[0].slug) || null,
+          episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+          episodes: extra[0] ? extra[0].episodes : [],
+          hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
         }))
       );
     }
@@ -376,7 +379,10 @@ const animeEpisodeHandler = async id => {
         otherName: extra[0] ? extra[0].otherName : null,
         totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
         servers: servers ? servers : null,
-        slug: extra[0] ? getSlugFromId(extra[0].slug) : null
+        slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
+        episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+        episodes: extra[0] ? extra[0].episodes : [],
+        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
       }))
     );
   });
