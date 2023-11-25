@@ -200,30 +200,29 @@ const popular = async page => {
   const $ = cheerio.load(body);
   const promises = [];
 
-  $('div.main_body div.last_episodes ul.items li').each((index, element) => {
+  for (const element of $('div.last_episodes ul.items li')) {
     const $element = $(element);
     const id = $element.find('div.img a').attr('href');
     const title = $element
       .find('a')
       .text()
       .trim();
-    promises.push(
-      animeContentHandler(id).then(extra => ({
-        title: title ? title : null,
-        img: extra[0] ? extra[0].img : null,
-        synopsis: extra[0] ? extra[0].synopsis : null,
-        genres: extra[0] ? extra[0].genres : null,
-        released: extra[0] ? extra[0].released : null,
-        status: extra[0] ? extra[0].status : null,
-        otherName: extra[0] ? extra[0].otherName : null,
-        totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
-        episodes: extra[0] ? extra[0].episodes : null,
-        slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
-        episodes: extra[0] ? extra[0].episodes : [],
-        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
-      }))
-    );
-  });
+    const extra = await animeContentHandler(id);
+    promises.push({
+      title: title ? title : null,
+      img: extra[0] ? extra[0].img : null,
+      synopsis: extra[0] ? extra[0].synopsis : null,
+      genres: extra[0] ? extra[0].genres : null,
+      released: extra[0] ? extra[0].released : null,
+      status: extra[0] ? extra[0].status : null,
+      otherName: extra[0] ? extra[0].otherName : null,
+      totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
+      episodes: extra[0] ? extra[0].episodes : null,
+      slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
+      episodes: extra[0] ? extra[0].episodes : [],
+      hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
+    });
+  }
   return await Promise.all(promises);
 };
 
@@ -291,7 +290,7 @@ const recentReleaseEpisodes = async (page, type = 1) => {
   const $ = cheerio.load(body);
   const promises = [];
 
-  $('div.last_episodes.loaddub ul.items li').each((index, element) => {
+  for (const element of $('div.last_episodes.loaddub ul.items li')) {
     const $element = $(element);
     const id = $element.find('p.name a').attr('href');
     const title = $element.find('p.name a').text();
@@ -302,26 +301,25 @@ const recentReleaseEpisodes = async (page, type = 1) => {
         .match(/\d+/g),
       10
     );
-    promises.push(
-      animeEpisodeHandler(id).then(extra => ({
-        title: title || null,
-        img: extra[0].img || null,
-        synopsis: extra[0].synopsis || null,
-        genres: extra[0].genres || null,
-        category: extra[0].category || null,
-        episode: episode || null,
-        totalEpisodes: extra[0].totalEpisodes || null,
-        released: extra[0].released || null,
-        status: extra[0].status || null,
-        otherName: extra[0].otherName || null,
-        servers: extra[0].servers || null,
-        slug: getSlugFromId(extra[0].slug) || null,
-        episodeSlug: extra[0] ? extra[0].episodeSlug : null,
-        episodes: extra[0] ? extra[0].episodes : [],
-        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
-      }))
-    );
-  });
+    const extra = await animeEpisodeHandler(id);
+    promises.push({
+      title: title || null,
+      img: extra[0].img || null,
+      synopsis: extra[0].synopsis || null,
+      genres: extra[0].genres || null,
+      category: extra[0].category || null,
+      episode: episode || null,
+      totalEpisodes: extra[0].totalEpisodes || null,
+      released: extra[0].released || null,
+      status: extra[0].status || null,
+      otherName: extra[0].otherName || null,
+      servers: extra[0].servers || null,
+      slug: getSlugFromId(extra[0].slug) || null,
+      episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+      episodes: extra[0] ? extra[0].episodes : [],
+      hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
+    });
+  }
   return await Promise.all(promises);
 };
 
