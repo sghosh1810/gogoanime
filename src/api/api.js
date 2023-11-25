@@ -390,7 +390,6 @@ const animeEpisodeHandler = async id => {
 };
 
 const animeContentHandler = async id => {
-  console.log(id, `${url.BASE_URL}${id}`);
   const res = await axios.get(`${url.BASE_URL}${id}`);
   const body = await res.data;
   const $ = cheerio.load(body);
