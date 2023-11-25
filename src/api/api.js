@@ -283,45 +283,45 @@ const recentlyAddedSeries = async () => {
   return await Promise.all(promises);
 };
 
-const recentReleaseEpisodes = async page => {
-  const res = await axios.get(`${url.BASE_URL}/?page=${page}`);
+const recentReleaseEpisodes = async (page, type = 1) => {
+  const res = await axios.get(
+    `${url.BASE_URL}/page-recent-release.html?page=${page}&type=${type}`
+  );
   const body = await res.data;
   const $ = cheerio.load(body);
   const promises = [];
 
-  $('div.main_body div.last_episodes.loaddub ul.items li').each(
-    (index, element) => {
-      const $element = $(element);
-      const id = $element.find('p.name a').attr('href');
-      const title = $element.find('p.name a').text();
-      const episode = parseInt(
-        $element
-          .find('p.episode')
-          .text()
-          .match(/\d+/g),
-        10
-      );
-      promises.push(
-        animeEpisodeHandler(id).then(extra => ({
-          title: title || null,
-          img: extra[0].img || null,
-          synopsis: extra[0].synopsis || null,
-          genres: extra[0].genres || null,
-          category: extra[0].category || null,
-          episode: episode || null,
-          totalEpisodes: extra[0].totalEpisodes || null,
-          released: extra[0].released || null,
-          status: extra[0].status || null,
-          otherName: extra[0].otherName || null,
-          servers: extra[0].servers || null,
-          slug: getSlugFromId(extra[0].slug) || null,
-          episodeSlug: extra[0] ? extra[0].episodeSlug : null,
-          episodes: extra[0] ? extra[0].episodes : [],
-          hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
-        }))
-      );
-    }
-  );
+  $('div.last_episodes.loaddub ul.items li').each((index, element) => {
+    const $element = $(element);
+    const id = $element.find('p.name a').attr('href');
+    const title = $element.find('p.name a').text();
+    const episode = parseInt(
+      $element
+        .find('p.episode')
+        .text()
+        .match(/\d+/g),
+      10
+    );
+    promises.push(
+      animeEpisodeHandler(id).then(extra => ({
+        title: title || null,
+        img: extra[0].img || null,
+        synopsis: extra[0].synopsis || null,
+        genres: extra[0].genres || null,
+        category: extra[0].category || null,
+        episode: episode || null,
+        totalEpisodes: extra[0].totalEpisodes || null,
+        released: extra[0].released || null,
+        status: extra[0].status || null,
+        otherName: extra[0].otherName || null,
+        servers: extra[0].servers || null,
+        slug: getSlugFromId(extra[0].slug) || null,
+        episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+        episodes: extra[0] ? extra[0].episodes : [],
+        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
+      }))
+    );
+  });
   return await Promise.all(promises);
 };
 
@@ -390,6 +390,7 @@ const animeEpisodeHandler = async id => {
 };
 
 const animeContentHandler = async id => {
+  console.log(id, `${url.BASE_URL}${id}`);
   const res = await axios.get(`${url.BASE_URL}${id}`);
   const body = await res.data;
   const $ = cheerio.load(body);
