@@ -255,30 +255,37 @@ const recentlyAddedSeries = async () => {
   const $ = cheerio.load(body);
   const promises = [];
 
-  $('div.main_body.none div.added_series_body ul.listing li').each(
-    (index, element) => {
-      const $element = $(element);
-      const id = $element.find('a').attr('href');
-      const title = $element.find('a').text();
-      promises.push(
-        animeContentHandler(id).then(extra => ({
-          title: title ? title : null,
-          img: extra[0] ? extra[0].img : null,
-          synopsis: extra[0] ? extra[0].synopsis : null,
-          genres: extra[0] ? extra[0].genres : null,
-          released: extra[0] ? extra[0].released : null,
-          status: extra[0] ? extra[0].status : null,
-          otherName: extra[0] ? extra[0].otherName : null,
-          totalEpisodes: extra[0] ? extra[0].totalEpisodes : null,
-          episodes: extra[0] ? extra[0].episodes : null,
-          slug: extra[0] ? getSlugFromId(extra[0].slug) : null,
-          episodeSlug: extra[0] ? extra[0].episodeSlug : null,
-          episodes: extra[0] ? extra[0].episodes : [],
-          hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
-        }))
-      );
-    }
-  );
+  $('div.last_episodes.loaddub ul.items li').each((index, element) => {
+    const $element = $(element);
+    const id = $element.find('p.name a').attr('href');
+    const title = $element.find('p.name a').text();
+    const episode = parseInt(
+      $element
+        .find('p.episode')
+        .text()
+        .match(/\d+/g),
+      10
+    );
+    promises.push(
+      animeEpisodeHandler(id).then(extra => ({
+        title: title || null,
+        img: extra[0].img || null,
+        synopsis: extra[0].synopsis || null,
+        genres: extra[0].genres || null,
+        category: extra[0].category || null,
+        episode: episode || null,
+        totalEpisodes: extra[0].totalEpisodes || null,
+        released: extra[0].released || null,
+        status: extra[0].status || null,
+        otherName: extra[0].otherName || null,
+        servers: extra[0].servers || null,
+        slug: getSlugFromId(extra[0].slug) || null,
+        episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+        episodes: extra[0] ? extra[0].episodes : [],
+        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
+      }))
+    );
+  });
   return await Promise.all(promises);
 };
 
@@ -290,7 +297,7 @@ const recentReleaseEpisodes = async (page, type = 1) => {
   const $ = cheerio.load(body);
   const promises = [];
 
-  for (const element of $('div.last_episodes.loaddub ul.items li')) {
+  $('div.last_episodes.loaddub ul.items li').each((index, element) => {
     const $element = $(element);
     const id = $element.find('p.name a').attr('href');
     const title = $element.find('p.name a').text();
@@ -301,30 +308,37 @@ const recentReleaseEpisodes = async (page, type = 1) => {
         .match(/\d+/g),
       10
     );
-    const extra = await animeEpisodeHandler(id);
-    promises.push({
-      title: title || null,
-      img: extra[0].img || null,
-      synopsis: extra[0].synopsis || null,
-      genres: extra[0].genres || null,
-      category: extra[0].category || null,
-      episode: episode || null,
-      totalEpisodes: extra[0].totalEpisodes || null,
-      released: extra[0].released || null,
-      status: extra[0].status || null,
-      otherName: extra[0].otherName || null,
-      servers: extra[0].servers || null,
-      slug: getSlugFromId(extra[0].slug) || null,
-      episodeSlug: extra[0] ? extra[0].episodeSlug : null,
-      episodes: extra[0] ? extra[0].episodes : [],
-      hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
-    });
-  }
+    promises.push(
+      animeEpisodeHandler(id).then(extra => ({
+        title: title || null,
+        img: extra[0].img || null,
+        synopsis: extra[0].synopsis || null,
+        genres: extra[0].genres || null,
+        category: extra[0].category || null,
+        episode: episode || null,
+        totalEpisodes: extra[0].totalEpisodes || null,
+        released: extra[0].released || null,
+        status: extra[0].status || null,
+        otherName: extra[0].otherName || null,
+        servers: extra[0].servers || null,
+        slug: getSlugFromId(extra[0].slug) || null,
+        episodeSlug: extra[0] ? extra[0].episodeSlug : null,
+        episodes: extra[0] ? extra[0].episodes : [],
+        hasZeroEpisode: extra[0] ? extra[0].hasZeroEpisode : false
+      }))
+    );
+  });
   return await Promise.all(promises);
 };
 
 const animeEpisodeHandler = async id => {
-  const res = await axios.get(`${url.BASE_URL}/${id}`);
+  const res = await axios.get(`${url.BASE_URL}/${id}`, {
+    headers: {
+      'user-agent':
+        'Mozilla/5.0 (X11; Linux aarch64; rv:78.0) Gecko/20100101 Firefox/78.0',
+      'accept-language': 'en-US,en;q=0.5'
+    }
+  });
   const body = await res.data;
   const $ = cheerio.load(body);
   const promises = [];
