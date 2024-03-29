@@ -291,7 +291,7 @@ const recentlyAddedSeries = async () => {
 
 const recentReleaseEpisodes = async (page, type = 1) => {
   const res = await axios.get(
-    `${url.BASE_URL}/page-recent-release.html?page=${page}&type=${type}`
+    `${url.GOGO_AJAX_URL}ajax/page-recent-release.html?page=${page}&type=${type}`
   );
   const body = await res.data;
   const $ = cheerio.load(body);
